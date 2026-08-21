@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الملاحظات</title>
+
+<link rel="stylesheet" href="notes.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+<body>
+<aside class="sidebar">
+    <div class="logo">🏠 التنظيم</div>
+
+    <div class="nav-section">عام</div>
+
+    <a class="nav-item" href="./index.html">🏠 الشاشة الرئيسية</a>
+    <a class="nav-item" href="./tasks.html">📋 المهام</a>
+    <a class="nav-item active">📝 الملاحظات</a>
+ 
+</aside>
+<div class="container">
+<div id="loading-screen">
+    <div class="loader-logo">
+        <div class="loader-circle"></div>
+        <h2>نظام التنظيم</h2>
+        <p>جاري تحميل البيانات</p>
+    </div>
+</div>
+    <div class="header">
+
+        <div>
+            <h1>📝 الملاحظات</h1>
+            <p>احتفظ بأفكارك وملاحظاتك.</p>
+        </div>
+
+        <button id="openModal">
+            <i class="fa-solid fa-plus"></i>
+            ملاحظة جديدة
+        </button>
+
+    </div>
+
+    <div class="search">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+        type="text"
+        placeholder="ابحث عن ملاحظة">
+
+    </div>
+
+    <div class="notes" id="notes">
+
+        <div class="note">
+
+            <h3>💡 فكرة مشروع</h3>
+
+            <p>
+                إنشاء Dashboard لإدارة الحياة الشخصية.
+            </p>
+
+            <div class="bottom">
+
+                <small>18 يوليو</small>
+
+                <div>
+
+                    <button class="edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="pin">
+                        <i class="fa-solid fa-thumbtack"></i>
+                    </button>
+
+                    <button class="delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="note">
+
+            <h3>📚 مذاكرة</h3>
+
+            <p>
+                مراجعة Express و MongoDB.
+            </p>
+
+            <div class="bottom">
+
+                <small>17 يوليو</small>
+
+                <div>
+
+                    <button class="edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+
+                    <button class="delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="modal" id="modal">
+
+        <div class="modal-content">
+
+            <h2>إضافة مهمة جديدة</h2>
+
+            <input
+                id="title"
+                type="text"
+                placeholder="عنوان الملاحظه">
+
+            <textarea
+                id="description"
+                placeholder="محتوي الملاحظه"></textarea>
+
+            <select id="priority">
+
+                <option value="📚">دراسه</option>
+
+                <option value="💡">مشروع</option>
+
+                <option value="📃">كلام</option>
+                <option value="">غير ذالك</option>
+
+            </select>
+
+            
+
+            <div class="modal-buttons">
+
+                <button id="cancel">
+                    إلغاء
+                </button>
+
+                <button id="saveTask">
+                    حفظ المهمة
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+<script src="db.js"></script>
+<script>
+    let notes = [];
+
+const modal = document.getElementById("modal");
+const openModal = document.getElementById("openModal");
+const cancel = document.getElementById("cancel");
+const saveTask = document.getElementById("saveTask");
+
+
+// =========================
+// Modal
+// =========================
+
+openModal.onclick = () => {
+    modal.style.display = "flex";
+};
+
+cancel.onclick = () => {
+    modal.style.display = "none";
+};
+
+
+// =========================
+// تحميل الملاحظات
+// =========================
+
+async function getNotes() {
+
+    notes = await getAll("notes");
+
+    renderNotes();
+}
+
+
+// =========================
+// عرض الملاحظات
+// =========================
+
+function renderNotes() {
+
+    const container =
+        document.getElementById("notes");
+
+    container.innerHTML = "";
+
+
+    if (notes.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty">
+                📝
+                <h3>لا توجد ملاحظات</h3>
+                <p>أضف أول ملاحظة لك.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    notes.forEach((note, index) => {
+
+        const pinned =
+            localStorage.getItem("pin") === note.title;
+
+
+        container.innerHTML += `
+
+            <div class="note">
+
+                <h3>
+                    ${escapeHTML(note.title)}
+                </h3>
+
+                <p>
+                    ${escapeHTML(note.text)}
+                </p>
+
+
+                <div class="bottom">
+
+                    <small>
+                        ${note.date || ""}
+                    </small>
+
+
+                    <div class="actions">
+
+                        <button
+                            class="${pinned ? "completed" : "pin"}"
+                            onclick="pinNote('${escapeAttribute(note.title)}')">
+
+                            📌
+
+                        </button>
+
+
+                        <button
+                            class="delete"
+                            onclick="deleteNote(${index})">
+
+                            🗑
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+    });
+}
+
+
+// =========================
+// إضافة ملاحظة
+// =========================
+
+saveTask.onclick = async () => {
+
+    let title =
+        document.getElementById("title").value.trim();
+
+    const text =
+        document.getElementById("description").value.trim();
+
+    const priority =
+        document.getElementById("priority").value;
+
+
+    if (!title) return;
+
+
+    title = `${priority} ${title}`;
+
+
+    await addItem("notes", {
+
+        title,
+
+        text,
+
+        date: new Date().toLocaleDateString("ar-EG"),
+
+        createdAt: new Date().toISOString()
+
+    });
+
+
+    modal.style.display = "none";
+
+
+    document.getElementById("title").value = "";
+    document.getElementById("description").value = "";
+
+
+    await getNotes();
+};
+
+
+// =========================
+// حذف
+// =========================
+
+async function deleteNote(index) {
+
+    const note = notes[index];
+
+    await deleteItem("notes", note.id);
+
+    if (localStorage.getItem("pin") === note.title) {
+        localStorage.removeItem("pin");
+    }
+
+    await getNotes();
+}
+
+
+// =========================
+// تثبيت
+// =========================
+
+function pinNote(title) {
+
+    localStorage.setItem("pin", title);
+
+    renderNotes();
+}
+
+
+// =========================
+// حماية HTML
+// =========================
+
+function escapeHTML(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+function escapeAttribute(text) {
+
+    return text
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+}
+
+
+// =========================
+// تشغيل
+// =========================
+
+window.addEventListener("load", async () => {
+
+    await openDB();
+
+    await getNotes();
+
+    setTimeout(() => {
+
+        document
+            .getElementById("loading-screen")
+            .classList.add("hide");
+
+    }, 300);
+
+});
+</script>
+
+</body>
+</html>
