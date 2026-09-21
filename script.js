@@ -149,7 +149,25 @@ function study(){
 
  <div class="card"><h2>➕ إضافة مهمة يدوياً</h2><form id="taskForm">
  <label>اسم المهمة</label><input id="taskTitle" required placeholder="حل 20 سؤال رياضيات">
- <div class="two"><div><label>المادة</label><select id="subject"><option>رياضيات</option><option>فيزياء</option><option>كيمياء</option><option>إنجليزي</option><option>برمجة</option><option>أخرى</option></select></div><div><label>المدة المتوقعة</label><input id="taskMinutes" type="number" min="1" value="30"></div></div>
+ <div class="two">
+  <div>
+    <label>المادة</label>
+    <select id="subject">
+      <option>عربي</option>
+      <option>إنجليزي</option>
+      <option>رياضيات</option>
+      <option>علوم</option>
+      <option>فيزياء</option>
+      <option>كيمياء</option>
+      <option>برمجة</option>
+      <option>تاريخ</option>
+    </select>
+  </div>
+  <div>
+    <label>المدة المتوقعة</label>
+    <input id="taskMinutes" type="number" min="1" value="30">
+  </div>
+</div>
  <button class="btn" type="submit">حفظ المهمة</button></form></div>
  
  <div class="card"><h2>📋 مهام اليوم</h2>${taskList(tasks())}</div>
